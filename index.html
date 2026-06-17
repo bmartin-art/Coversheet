@@ -59,7 +59,7 @@
   .modal-body{padding:16px 18px;overflow:auto}
   .modal .note{margin:0 0 14px;font-size:12px;color:var(--muted);line-height:1.5}
   .modal .note code{font-family:var(--mono);background:var(--surface);border:1px solid var(--line);padding:1px 5px;border-radius:4px;font-size:11px}
-  .mgr-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .mgr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px}
   .mgr-grid h3{margin:0 0 9px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--steel);
     border-bottom:2px solid var(--line);padding-bottom:5px}
   .mgr-grid h3 .tiny{font-weight:600;color:var(--muted);letter-spacing:0}
@@ -283,6 +283,14 @@
           </div>
           <ul class="mgr-list" id="jobCustomList"></ul>
         </section>
+        <section>
+          <h3>Ship / Pickup</h3>
+          <div class="addrow">
+            <input id="newShipto" placeholder="e.g. WILL CALL">
+            <button class="btn primary sm" id="addShipto">Add</button>
+          </div>
+          <ul class="mgr-list" id="shiptoCustomList"></ul>
+        </section>
       </div>
     </div>
     <footer>
@@ -319,7 +327,8 @@
     <div class="f"><label for="csr">C.S.R.</label>
       <select id="csr"><option value=""></option><option>PR</option><option>CH</option></select></div>
     <div class="f"><label for="shipto">Ship / Pickup</label>
-      <select id="shipto"><option value=""></option><option>SHIP</option><option>P/U</option></select></div>
+      <input id="shipto" list="shiptoList" autocomplete="off" placeholder="SHIP, P/U, or type…">
+      <datalist id="shiptoList"></datalist></div>
 
     <div class="f"><label for="freight">Freight Rate $</label><input id="freight" type="text"></div>
     <div class="f"><label for="delivery">Delivery</label>
@@ -533,19 +542,21 @@
 /* ====== EDITABLE LISTS (baked-in defaults — edit here to change for everyone) ====== */
 const BASE_CUSTOMERS = [["4 Dimonds Mechanical", "4DM100"], ["Advanced Comfort Specialists", "ACS100"], ["Advanced Cooling Technologies", "ACT100"], ["Air Management Technologies, Inc.", "AIT100"], ["Alltemp Enterprises Inc.", "ALL100"], ["Ameri-Tech", "AMT100"], ["Ames Construction Inc.", "AME100"], ["Antz Energy", "ANT100"], ["B&L Ott Heating and Air Conditioning, LLC", "BLO100"], ["Berkshire Mechanical", "BER100"], ["BMH Plumbing Heating & A/C", "BMH100"], ["Boalton Mechanical", "BOA100"], ["BRIAN'S HEATING & COOLING", "BRI100"], ["Brookstone Personal", "BRO100"], ["BRUBAKER, INC", "BRU100"], ["C Mechanical Service", "CMS100"], ["Carpenter Technology", "CAT100"], ["Clark Inc.", "CLK100"], ["CMC. INC.", "CMC100"], ["COMFORT AIRE H/C", "COM100"], ["Comfort Plus Htg & Air Conditioning LLC", "CPH100"], ["Conestoga Mechanical", "CON100"], ["Cooks Service Co.", "COO100"], ["COUNTY LINE MECHANICAL LLC", "COU100"], ["CS Wenger", "CSW100"], ["Custom Comfort Mechanical", "CCM100"], ["Daflure Heating and Cooling", "DAF100"], ["Dart Container", "DAR100"], ["DENTECH INC", "DEN100"], ["DN Printer Solutions", "DNP100"], ["Dolan Construction", "DOL100"], ["Doug Gochnauer", "DOU100"], ["Eastern Air Inc", "EAS100"], ["Eden Resorts", "EDN100"], ["EE Biss Heating and Cooling", "EEB100"], ["Elite Plumbing and Heating AC", "EPH100"], ["ENERGY WALL LLC", "ENE100"], ["Five Star Mechanical Contractors", "FIV100"], ["Flintrock Stables", "FLI100"], ["FLOW Mechanical, LLC", "FLO100"], ["GARDEN SPOT MECHANICAL INC", "GSM100"], ["GARY MARTIN & SONS INC", "GAR100"], ["GM Mechanical Inc.", "GMM100"], ["GROFF'S Heating AC & Plumbing, Inc", "GRF100"], ["GSM Industrial", "GSI100"], ["Haller Enterprises Inc", "HAL100"], ["Hammer Creek Holdings", "HCH100"], ["HB McClure Co", "HBM100"], ["Hector Moreno HVAC Pro", "HMH100"], ["Hightec HVAC", "HIG100"], ["Hirschberg Mechanical", "HIR100"], ["Hoem Incorparated", "HOM100"], ["IT Landes Company, LLC", "ITL100"], ["J & J HEATING & COOLING", "JJH100"], ["J I Properties LLC", "JIP100"], ["J&G Heating and Air Conditioning", "JGH100"], ["J.A. Smith Heating & Air Conditioning", "JAS100"], ["Jack Pears & Associates, LLC", "JAC100"], ["James Craft & Son, Inc.", "JCS100"], ["JK Mechanical Inc", "JKM100"], ["JM LAPP", "JML100"], ["JSL Mechanical, Inc.", "JSL100"], ["JWCS (Cincinnatus)", "JWC100"], ["JZ Enterprise", "JZE100"], ["Lanco Heating & Cooling", "LAN100"], ["Leibold Inc.", "LEI100"], ["LEO KOB CO, INC", "LEO100"], ["Les Weaver Heating & Air Conditioning", "LES100"], ["Lincoln Pavement", "LIN100"], ["Locust Hill Mechanical", "LHM100"], ["M&M Facility Services", "MMF100"], ["M&M Mechanical", "MMM100"], ["MARV'S PLUMBING", "MAR100"], ["Matchline Mechanical, LLC", "MAT100"], ["Midstate Mechanical", "MSM100"], ["Modern Heating, Cooling & Plumbing", "MOD100"], ["Monarch Enterprise Inc", "MON100"], ["MW Service", "MWS100"], ["Myco Mechanical", "MYC100"], ["N.B. Rogers", "NBR100"], ["North Bay Mechanical", "NBM100"], ["Premier Climate LLC", "PCL100"], ["Prime Home Contracting", "PHC100"], ["Printer Solutions", "PRI100"], ["Protech Mechanical Contractors", "PRO100"], ["Rad Electrical", "RAD100"], ["Rank Inc", "RNK100"], ["Rank Inc.", "RAN100"], ["RELIANT HEATING & COOLING", "REL100"], ["Remco Inc.", "REM100"], ["Ressler & Mateer, Inc.", "RSM100"], ["Reynolds Heating & Air Cond", "REY100"], ["RR HVAC Services, LLC", "RRH100"], ["S&S Heating and Air", "SSH100"], ["Schwanger Bro & Co", "SWB100"], ["Shannon A. Smith, Inc.", "SHA100"], ["Spangler & Boyer Mechanical Inc", "SBM100"], ["Swartley Bros. Engineers", "SBE100"], ["TEMPCHEK Mechanical Services, Inc", "TEM100"], ["The Cincinnatus Group", "TCG100"], ["Thermal Logistics, Inc", "TML100"], ["Thermotech Inc", "THT100"], ["Thirty, Inc. (dba Eden Resort)", "THI100"], ["Tier 1 Mechanical", "TIE100"], ["TM Heating & Cooling", "TMH100"], ["Tom Daly", "TOM100"], ["Total Temp Control LLC", "TTC100"], ["Triangle Refrigeration", "TRI100"], ["Vertex Mechanical", "VTX100"], ["W.C. Eshenaur & Son, Inc.", "WCE100"], ["Warfel Construction", "WAR100"], ["Weaver Energy", "WEE100"], ["WHITLEY EAST LLC", "WHT100"], ["Wohlsen Construction Company", "WCC100"], ["Yorkaire Inc", "YOA100"], ["Home Climates Inc", "HCI100"], ["RSC Heating & Air Conditioning LLC", "RSC100"], ["Scott Hogarth Heating", "SHH100"], ["Creative Energy", "CRE100"], ["Regal Restorations", "RRE100"], ["Boyd Wilson LLC", "BYW100"], ["Ferguson", "FER100"], ["Vision Mechanical INC", "VIM100"], ["Melcher Heating And Cooling", "MCR100"], ["The AC-Team", "ATM100"], ["Anchor Mechanical", "ANM100"], ["Cocalico Plumbing & Heating", "CPA100"], ["JBM", "JBM100"], ["Landis Brothers Mechanical", "LBM100"], ["Menco Mechanical", "MEN100"], ["Martins Climate Technologies", "MCT100"], ["New Energy Solutions", "NES100"], ["Stillman H&C LLC", "SHC100"], ["Mick's Pluming & Heating", "MPH100"], ["The Farfield Company", "FAR100"], ["Grapek Bates", "GRB100"], ["T.L. Wetzel & Sons. Inc.", "TLW100"]];   // [ ["Name","Acct #"], ... ]
 const BASE_JOBS = [["North Queen", "100 0000 4659"], ["Faulkner", "100876"], ["Tiger", "3590"], ["Amazon", "10000019142"], ["Pine Hill Storage", "3579-2"], ["OverLook Town Center", "30371"], ["Doylestown Rec Center", "DCM-2"], ["Ciporin Cottages", "1264"], ["United Zion", "TW1473"], ["Monroe Vo-Tech", "72_Monroe"], ["Charles River Labs", "3620"], ["Cumru Fire Dept", "4157"], ["Jura", "452662"], ["Trillium", "10000048601"], ["Ashbridge House", "AHM-11"], ["PSU Abington", "2416008"], ["Christ Wesleyan Church", "4424"], ["Aldi 98", "1374"], ["Overlook TC E", "33708"], ["Goddard School", "10000033176"], ["Jersey Shore MS Library", "4412"], ["Jersey Shore MS GYM", "4412"], ["Intrepidus", "39655"], ["Lancaster Catholic", "460759"], ["Grocery Outlet Abington", "1400"], ["Aldi #197", "1377"], ["Chase Bank Easton", "8805001"], ["501 Alexander Drive", "501 Alexander"], ["Lancaster Airport", "AT2725-94064"], ["Hershey West End", "Hershey"], ["Overlook TC F", "31512"], ["Memory Care Main", "HLZH25021-20203"], ["Mavis Tire", "8768001"], ["Sweet Valley", "4397"], ["Burkholder Tractor", ""], ["Chase Bank Trexlertown", "8897002"], ["RR Museum", "004454"], ["Cheltenham HS", "258003"], ["Cleveland White", "3650"], ["Eurofins A358", "Eurofins A358"], ["CRL Corridor", "CRL Corridor"], ["Pioneer Charter School", "101095"], ["VIA Lehigh Valley", "H25086-2C"], ["Shank Door", "H558-15622"], ["Valvoline", "HLZH25077-24681"]];        // [ ["Ship-to / Job","PO #"], ... ]
+const BASE_SHIPTO = ["SHIP","P/U"];// Ship / Pickup options
 
 const $ = id => document.getElementById(id);
 
 /* ---- additions you make in-app, saved on this machine ---- */
 const LS_KEY = 'brookstone_cover_lists_v1';
-function loadCustom(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)) || {customers:[],jobs:[]}; }catch(e){ return {customers:[],jobs:[]}; } }
+function loadCustom(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)) || {}; }catch(e){ return {}; } }
 function saveCustom(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(custom)); }catch(e){} }
 let custom = loadCustom();
-if(!custom.customers) custom.customers=[]; if(!custom.jobs) custom.jobs=[];
+if(!custom.customers) custom.customers=[]; if(!custom.jobs) custom.jobs=[]; if(!custom.shiptos) custom.shiptos=[];
 
 const norm = s => (s||'').trim().toUpperCase();
 const allCustomers = () => BASE_CUSTOMERS.concat(custom.customers);
 const allJobs = () => BASE_JOBS.concat(custom.jobs);
+const allShiptos = () => BASE_SHIPTO.concat(custom.shiptos);
 
 let CMAP = {}, JMAP = {};
 function rebuildLists(){
@@ -556,6 +567,8 @@ function rebuildLists(){
   cust.forEach(([n])=>{const o=document.createElement('option');o.value=n;cl.appendChild(o);});
   const jl = $('jobList'); jl.innerHTML='';
   jobs.forEach(([n])=>{const o=document.createElement('option');o.value=n;jl.appendChild(o);});
+  const sl = $('shiptoList'); sl.innerHTML='';
+  allShiptos().forEach(n=>{const o=document.createElement('option');o.value=n;sl.appendChild(o);});
 }
 rebuildLists();
 
@@ -689,6 +702,14 @@ function renderCustomLists(){
     b.onclick=()=>{ custom.jobs.splice(i,1); saveCustom(); rebuildLists(); renderCustomLists(); };
     li.appendChild(b); jl.appendChild(li);
   });
+  const sl = $('shiptoCustomList'); sl.innerHTML='';
+  custom.shiptos.forEach((s,i)=>{
+    const li=document.createElement('li');
+    li.innerHTML=`<span class="nm">${esc(s)}</span>`;
+    const b=document.createElement('button'); b.className='del'; b.textContent='\u00d7'; b.title='Remove';
+    b.onclick=()=>{ custom.shiptos.splice(i,1); saveCustom(); rebuildLists(); renderCustomLists(); };
+    li.appendChild(b); sl.appendChild(li);
+  });
 }
 const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function openLists(){ renderCustomLists(); $('listsModal').hidden=false; }
@@ -712,17 +733,26 @@ $('addJob').addEventListener('click', ()=>{
   custom.jobs.push([n,po]); saveCustom(); rebuildLists(); renderCustomLists();
   $('newJobName').value=''; $('newJobPo').value=''; $('newJobName').focus();
 });
+$('addShipto').addEventListener('click', ()=>{
+  const n=$('newShipto').value.trim();
+  if(!n) return $('newShipto').focus();
+  if(allShiptos().some(v=>norm(v)===norm(n))){ alert('That ship / pickup option is already in the list.'); return; }
+  custom.shiptos.push(n); saveCustom(); rebuildLists(); renderCustomLists();
+  $('newShipto').value=''; $('newShipto').focus();
+});
 // Enter key adds
 $('newCustId').addEventListener('keydown', e=>{ if(e.key==='Enter') $('addCust').click(); });
 $('newJobPo').addEventListener('keydown', e=>{ if(e.key==='Enter') $('addJob').click(); });
+$('newShipto').addEventListener('keydown', e=>{ if(e.key==='Enter') $('addShipto').click(); });
 
 $('copyLists').addEventListener('click', ()=>{
   const fmt = arr => '[' + arr.map(p=>JSON.stringify(p)).join(',\n') + ']';
   const text =
     'const BASE_CUSTOMERS = ' + fmt(allCustomers()) + ';\n\n' +
-    'const BASE_JOBS = ' + fmt(allJobs()) + ';';
+    'const BASE_JOBS = ' + fmt(allJobs()) + ';\n\n' +
+    'const BASE_SHIPTO = ' + JSON.stringify(allShiptos()) + ';';
   navigator.clipboard.writeText(text).then(
-    ()=>alert('Copied the full Customers and Ship-to lists. Paste them over the BASE_CUSTOMERS and BASE_JOBS lines in the file to make them permanent for everyone.'),
+    ()=>alert('Copied the full Customers, Ship-to and Ship/Pickup lists. Paste them over the BASE_CUSTOMERS, BASE_JOBS and BASE_SHIPTO lines in the file to make them permanent for everyone.'),
     ()=>{ const w=window.open('','_blank'); w.document.write('<pre>'+esc(text)+'</pre>'); }
   );
 });
