@@ -1,0 +1,46 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fill Tracker — setup</title>
+<style>
+:root{--ink:#14253b;--steel:#3c4f63;--muted:#6b7886;--line:#d3d9e0;--surface:#eceff3;--accent:#e07b1a;--accent-d:#b9610c;--card:#fff;--mono:ui-monospace,Menlo,Consolas,monospace;--sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--surface);color:var(--ink);font-family:var(--sans);line-height:1.55}
+.wrap{max-width:720px;margin:32px auto;padding:0 18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px 26px;box-shadow:0 2px 12px rgba(20,37,59,.06)}
+h1{font-size:19px;letter-spacing:.04em;margin:0 0 4px}
+.sub{color:var(--accent-d);font-weight:700;text-transform:uppercase;letter-spacing:.12em;font-size:11px;margin-bottom:18px}
+.bm{display:inline-block;background:var(--accent);color:#241303;font-weight:800;text-decoration:none;
+  padding:13px 20px;border-radius:8px;border:1px solid var(--accent-d);font-size:15px;cursor:grab;user-select:none}
+.bm:active{cursor:grabbing}
+.drag{background:#fff7ee;border:1px dashed var(--accent);border-radius:8px;padding:16px;text-align:center;margin:6px 0 18px}
+ol{padding-left:20px}li{margin:7px 0}
+code{font-family:var(--mono);background:var(--surface);border:1px solid var(--line);padding:1px 6px;border-radius:4px;font-size:12.5px}
+.muted{color:var(--muted);font-size:13px}
+details{margin-top:18px;border-top:1px solid var(--line);padding-top:14px}
+summary{cursor:pointer;font-weight:600;color:var(--steel)}
+textarea{width:100%;min-height:90px;font-family:var(--mono);font-size:11px;border:1px solid var(--line);border-radius:6px;padding:10px;margin-top:8px;background:var(--surface)}
+.step{font-weight:700}
+</style></head><body>
+<div class="wrap"><div class="card">
+<h1>Fill Tracker</h1>
+<div class="sub">One-click bookmarklet · Brookstone cover sheet</div>
+
+<p><span class="step">1.</span> Drag this button up to your Chrome bookmarks bar:</p>
+<div class="drag"><a class="bm" id="bm">📋 Fill Tracker</a>
+<div class="muted" style="margin-top:8px">Drag it onto the bar — don't click it here.</div></div>
+
+<p><span class="step">2.</span> Fill out a job on the cover sheet, then click <b>Copy for tracker</b>.</p>
+<p><span class="step">3.</span> Switch to your order-tracker tab and click the <b>Fill Tracker</b> bookmark. It reads the job you copied and types it into the tracker's matching fields.</p>
+
+<p class="muted">First time, Chrome may ask permission to read the clipboard — allow it. If a tracker field is left blank, its label just didn't match a keyword yet; tell me the field names and I'll tune it. Nothing is saved automatically — always review, then hit the tracker's own Save.</p>
+
+<details><summary>If dragging doesn't work — copy the code instead</summary>
+<p class="muted">Create a new bookmark (any page), edit it, and paste this as the URL:</p>
+<textarea id="code" readonly onclick="this.select()"></textarea>
+</details>
+</div></div>
+<script>
+var CODE = "javascript:(async function(){var raw='';try{raw=await navigator.clipboard.readText();}catch(e){}if(!raw){raw=prompt('Paste the job you copied from the cover sheet (Copy for tracker):')||'';}var data;try{data=JSON.parse(raw);}catch(e){alert('No job on the clipboard. Click \\'Copy for tracker\\' on the cover sheet first, then click this bookmark on the tracker page.');return;}function tracker_fill(data){ var map={ customer:['customer','client','company','account name','cust name','bill to'], acct:['acct','account #','account no','account number','cust #','customer #'], email:['email','e-mail'], job:['job','project','ship to','jobsite','site','description','job name'], po:['po','p.o','purchase order'], buyer:['buyer','ordered by'], contact:['contact','attention','attn'], phone:['phone','tel','mobile','cell','telephone'], csr:['csr','sales rep','rep','salesperson'], shipto:['ship','pickup','pick up','delivery method','fob'], delivery:['delivery','carrier','ship via','freight','method'] }; function lab(el){ var t=''; if(el.id){var l=document.querySelector('label[for=\"'+(window.CSS&&CSS.escape?CSS.escape(el.id):el.id)+'\"]');if(l)t+=' '+l.textContent;} var w=el.closest&&el.closest('label');if(w)t+=' '+w.textContent; var p=el.previousElementSibling;if(p&&p.textContent)t+=' '+p.textContent; t+=' '+(el.name||'')+' '+(el.placeholder||'')+' '+(el.getAttribute&&el.getAttribute('aria-label')||''); return t.toLowerCase(); } function setVal(el,val){ var proto=el.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype; var setter=Object.getOwnPropertyDescriptor(proto,'value').set; setter.call(el,val); el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true})); } var fields=[].slice.call(document.querySelectorAll('input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=submit]):not([type=button]):not([type=file]),textarea,select')); var used=[],filled=0; Object.keys(map).forEach(function(key){ var val=data[key]; if(!val) return; var kws=map[key],target=null; for(var i=0;i<fields.length;i++){var el=fields[i];if(used.indexOf(el)>=0)continue;var L=lab(el);if(kws.some(function(k){return L.indexOf(k)>=0;})){target=el;break;}} if(!target) return; if(target.tagName==='SELECT'){ var opt=null,opts=target.options; for(var j=0;j<opts.length;j++){if(opts[j].text.trim().toLowerCase()===String(val).toLowerCase()){opt=opts[j];break;}} if(opt){target.value=opt.value;target.dispatchEvent(new Event('change',{bubbles:true}));used.push(target);filled++;} } else { setVal(target,val); used.push(target); filled++; } }); return filled; } var n=tracker_fill(data);alert('Filled '+n+' field(s) on this page. Review everything before you save.');})();";
+document.getElementById('bm').href = CODE;
+document.getElementById('code').value = CODE;
+</script>
+</body></html>
